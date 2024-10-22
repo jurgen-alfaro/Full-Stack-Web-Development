@@ -26,9 +26,7 @@ function App() {
   useEffect(() => {
     if (countries) {
       const filtered = countries.filter(c => c.name.common.toLowerCase().includes(country.toLowerCase()))      
-      setFilteredCountries(filtered)
-      console.log(filtered);
-      
+      setFilteredCountries(filtered)      
     }
   }, [country])
 
