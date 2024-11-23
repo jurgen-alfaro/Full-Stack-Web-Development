@@ -10,7 +10,6 @@ const personName = process.argv[3];
 const personNumber = process.argv[4];
 
 const url = `mongodb+srv://jurgen:${password}.@nextjscluster.eqz4cyx.mongodb.net/phone_book`;
-// // mongodb+srv://jurgen:Democracia00.@nextjscluster.eqz4cyx.mongodb.net/
 mongoose.set('strictQuery', false);
 
 mongoose.connect(url);
