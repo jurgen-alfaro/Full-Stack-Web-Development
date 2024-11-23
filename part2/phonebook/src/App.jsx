@@ -25,6 +25,8 @@ const App = () => {
         
         const changedPerson = { ...person, number: newNumber }
 
+        // IMPORTANT: NB: En las operaciones de actualización, los validadores de mongoose están desactivados por defecto. Lee la documentación para ver cómo habilitarlos.
+        // https://mongoosejs.com/docs/validation.html
         personService.update(person.id, changedPerson)
           .then(updatedPerson => {
             setPersons(persons.map(p => p.id !== person.id ? p : updatedPerson ))
@@ -60,25 +62,54 @@ const App = () => {
       .then(person => {
         setPersons(persons.concat(person))
         setFilteredPersons(persons.concat(person))
+        setNewName("")
+        setNewNumber("")
 
         setNotificationMessage(`Added ${newPerson.name}`)
         setTimeout(() => {
           setNotificationMessage(null)
         }, 3000)
+      }).catch(error => {
+        const errMessage = error.response.data.error
+        console.log(errMessage)
+        setNotificationMessage(errMessage)
+        setIsError(true);
+        setTimeout(() => {
+          setNotificationMessage(null)
+          setIsError(false);
+        }, 4000)
       })
-
-    setNewName("")
-    setNewNumber("")
   }
 
   const handleDelete = personId => {
+
     const person = persons.find(p => p.id === personId)
     if (window.confirm(`Delete ${person.name}?`)) {
-      personService.deletePerson(personId)
-        .then(deletedPerson => {
-          setPersons(persons.filter(p => p.id !== deletedPerson.id))
-          setFilteredPersons(persons.filter(p => p.id !== deletedPerson.id))
-        })
+      setPersons((prevPersons) => prevPersons.filter((p) => p.id !== personId));
+        setFilteredPersons((prevFilteredPersons) =>
+        prevFilteredPersons.filter((p) => p.id !== personId)
+        );
+
+      personService
+      .deletePerson(personId)
+      .then(() => {
+        setNotificationMessage(`${person.name} deleted`);
+        setTimeout(() => {
+          setNotificationMessage(null);
+        }, 5000);
+      })
+      .catch((error) => {
+        console.log(error);
+        setNotificationMessage(`Error deleting ${person.name}. It may already have been removed.`);
+        setIsError(true);
+        // Add the deleted person again
+        setPersons((prevPersons) => [...prevPersons, person]);
+        setFilteredPersons((prevFilteredPersons) => [...prevFilteredPersons, person]);
+        setTimeout(() => {
+          setNotificationMessage(null);
+          setIsError(false);
+        }, 5000);
+      });
     }
   }
 
